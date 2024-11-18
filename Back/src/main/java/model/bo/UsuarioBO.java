@@ -77,7 +77,7 @@ public class UsuarioBO {
     
 
 
-public UsuarioVO consultarTodosUsuariosBO() {
+public Response consultarTodosUsuariosBO() {
     UsuarioDAO usuarioDAO = new UsuarioDAO();
     ArrayList<UsuarioVO> listaUsuariosVO = usuarioDAO.consultarTodosUsuariosDAO();
 
