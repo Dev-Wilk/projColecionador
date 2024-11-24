@@ -2,18 +2,20 @@ package controller;
 
 import java.io.InputStream;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import model.bo.UsuarioBO;
 import model.vo.UsuarioVO;
+
 
 @Path("/usuario")
 public class UsuarioController {
@@ -22,15 +24,15 @@ public class UsuarioController {
     @Path("/cadastrar")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public UsuarioVO cadastrarUsuario(InputStream jsonInputStream, InputStream fileInputStream, FormDataContentDisposition fileMetaData) {
+    public UsuarioVO cadastrarUsuario(InputStream jsonInputStream) {
         UsuarioBO usuarioBO = new UsuarioBO();
-        return usuarioBO.cadastrarUsuarioBO(jsonInputStream, fileInputStream, fileMetaData);
+        return usuarioBO.cadastrarUsuarioBO(jsonInputStream);
     }
 	
     @GET
      @Path("/listar")
-     @Produces(MediaType.MULTIPART_FORM_DATA)
-     public Response consultarTodasPessoasController() {
+     @Produces(MediaType.APPLICATION_JSON)
+     public Response consultarTodosUsuariosController() {
      UsuarioBO usuarioBO = new UsuarioBO();
      return usuarioBO.consultarTodosUsuariosBO();
      }
@@ -44,7 +46,34 @@ public class UsuarioController {
      return usuarioBO.consultarUsuarioBO(idusuario);
      }
 
+   @PUT
+    @Path("/atualizar")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response atualizarUsuario(UsuarioVO usuarioVO) {
+        UsuarioBO usuarioBO = new UsuarioBO();
+        boolean atualizado = usuarioBO.atualizarUsuarioBO(usuarioVO);
+        
+        if (atualizado) {
+            return Response.ok(usuarioVO).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("Usuário não encontrado ou atualização falhou.").build();
+        }
+    }
 
 
+   
+  @DELETE
+   @Path("/deletar/{idusuario}")
+   public Response deletarUsuario(@PathParam("idusuario") int idUsuario) {
+       UsuarioBO usuarioBO = new UsuarioBO();
+       boolean deletado = usuarioBO.deletarUsuarioBO(idUsuario);
+       
+       if (deletado) {
+           return Response.ok("Usuário deletado com sucesso.").build();
+       } else {
+           return Response.status(Response.Status.NOT_FOUND).entity("Usuário não encontrado ou já expirado.").build();
+       }
+   }
 
 }

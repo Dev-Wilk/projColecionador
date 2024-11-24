@@ -1,8 +1,6 @@
 package model.bo;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -12,12 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
+
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,46 +23,45 @@ import model.vo.UsuarioVO;
 
 public class UsuarioBO {
 	
-	private byte[] converterByteParaArray(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] dados = new byte[1024];
-        int read;
-        while ((read = inputStream.read(dados, 0, dados.length)) != -1) {
-            buffer.write(dados, 0, read);
-        }
-        buffer.flush();
-        return buffer.toByteArray();
-    }
 
-    public UsuarioVO cadastrarUsuarioBO(InputStream jsonInputStream, InputStream fileInputStream, FormDataContentDisposition fileMetaData) {
-        UsuarioDAO usuarioDAO = new UsuarioDAO();
-        UsuarioVO usuarioVO = null;
 
-        try {
-           
-            // Lê o conteúdo do JSON
-            String json = new String(converterByteParaArray(jsonInputStream), StandardCharsets.UTF_8);
+    public UsuarioVO cadastrarUsuarioBO(InputStream jsonInputStream) {
+    	 UsuarioDAO usuarioDAO = new UsuarioDAO();
+         UsuarioVO usuarioVO = null;
 
-            // Converte o JSON em um objeto Java
-            ObjectMapper objectMapper = new ObjectMapper();
-            usuarioVO = objectMapper.readValue(json, UsuarioVO.class);
-            
+         try {
+             // Converte o InputStream para String
+             byte[] bytes = jsonInputStream.readAllBytes();
+             String json = new String(bytes, StandardCharsets.UTF_8);
 
-            // Verifica se a pessoa já está cadastrada
-            if (usuarioDAO.verificarCadastroUsuarioBancoDAO(usuarioVO)) {
-                System.out.println("Pessoa já cadastrada no banco de dados!");
-                return null;
-            } else {
-                usuarioDAO.cadastrarUsuarioDAO(usuarioVO);
-                System.out.println("Pessoa cadastrada com sucesso!");
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Arquivo não encontrado: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Erro ao processar os dados: " + e.getMessage());
-        }
+             // Converte o JSON para objeto UsuarioVO
+             ObjectMapper objectMapper = new ObjectMapper();
+             objectMapper.findAndRegisterModules(); // Necessário para LocalDate
+             usuarioVO = objectMapper.readValue(json, UsuarioVO.class);
+             
+             // Define a data de cadastro se não foi informada
+             if (usuarioVO.getDataCadastro() == null) {
+                 usuarioVO.setDataCadastro(LocalDate.now());
+             }
 
-        return usuarioVO;
+             // Verifica se usuário já existe
+             if (usuarioDAO.verificarCadastroUsuarioBancoDAO(usuarioVO)) {
+                 System.out.println("Usuário já cadastrado no banco de dados!");
+                 return null;
+             }
+
+             // Realiza o cadastro
+             usuarioVO = usuarioDAO.cadastrarUsuarioDAO(usuarioVO);
+             System.out.println("Usuário cadastrado com sucesso!");
+             
+         } catch (IOException e) {
+             System.out.println("Erro ao processar dados do usuário: " + e.getMessage());
+             e.printStackTrace();
+             return null;
+         }
+
+         return usuarioVO;
+     
     }
 
 
@@ -75,33 +69,24 @@ public class UsuarioBO {
 
 
 public Response consultarTodosUsuariosBO() {
-    UsuarioDAO usuarioDAO = new UsuarioDAO();
-    ArrayList<UsuarioVO> listaUsuariosVO = usuarioDAO.consultarTodosUsuariosDAO();
+	    UsuarioDAO usuarioDAO = new UsuarioDAO();
+	    ArrayList<UsuarioVO> listaUsuariosVO = usuarioDAO.consultarTodosUsuariosDAO();
 
-    if (listaUsuariosVO.isEmpty()) {
-        System.out.println("\nLista de Usuários está vazia.");
-        return Response.status(Response.Status.NO_CONTENT).entity("Nenhum usuário encontrado.").build();
-    }
+	    if (listaUsuariosVO.isEmpty()) {
+	        System.out.println("Lista de Usuários está vazia.");
+	        return Response.status(Response.Status.NO_CONTENT).entity("Nenhum usuário encontrado.").build();
+	    }
 
-    MultiPart multiPart = new FormDataMultiPart();
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.findAndRegisterModules();
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    objectMapper.findAndRegisterModules();
 
-    try {
-        for (UsuarioVO usuarioVO : listaUsuariosVO) {
-           
-
-            // Adiciona o JSON dos usuários
-            String usuarioJson = objectMapper.writeValueAsString(usuarioVO);
-            multiPart.bodyPart(new StreamDataBodyPart("usuario", new ByteArrayInputStream(usuarioJson.getBytes()),
-                    usuarioVO.getIdusuario() + "-usuario.json"));
-            
-            }
-        
-        return Response.ok(multiPart).build();
-    } catch (Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro ao processar a resposta multipart.").build();
-    }
+	    try {
+	        String usuarioJson = objectMapper.writeValueAsString(listaUsuariosVO);
+	        return Response.ok(usuarioJson).build();
+	    } catch (Exception e) {
+	        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro ao processar a resposta multipart.").build();
+	    }
+	
 }
 
 
@@ -111,7 +96,7 @@ public UsuarioVO consultarUsuarioBO(int idUsuario) {
     Statement stmt = Banco.getStatement(conn);
     ResultSet resultado = null;
 
-    String query = "SELECT idusuario, nome, email, login, senha, datacadastro, datacadastro FROM usuario WHERE idUsuario = " + idUsuario;
+    String query = "SELECT idusuario, nome, email, login, senha, datacadastro, datacadastro FROM usuario WHERE idusuario =" + idUsuario + "AND dataexpiracao = null";
 
     UsuarioVO usuario = new UsuarioVO();
     try {
@@ -138,39 +123,53 @@ public UsuarioVO consultarUsuarioBO(int idUsuario) {
 }
 
 
-public Boolean atualizarUsuarioBO(InputStream usuarioInputStream, InputStream fileInputStream, FormDataContentDisposition fileMetaData) {
-    boolean resultado = false;
-
-    UsuarioDAO usuarioDAO = new UsuarioDAO();
-    UsuarioVO usuarioVO = null;
-
+public boolean atualizarUsuarioBO(UsuarioVO usuarioVO) {
     try {
-       
-
-        // Lê o conteúdo do JSON
-        String usuarioJSON = new String(this.converterByteParaArray(usuarioInputStream), StandardCharsets.UTF_8);
-
-        // Converte o JSON em um objeto Java
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-
-        usuarioVO = objectMapper.readValue(usuarioJSON, UsuarioVO.class);
-        
-
-        if (usuarioDAO.verificarCadastroUsuarioPorIDDAO(usuarioVO)) {
-            resultado = usuarioDAO.atualizarUsuarioDAO(usuarioVO);
-        } else {
-            System.out.println("Usuário não consta na base de dados!");
+        // Validações básicas
+        if (usuarioVO == null) {
+            System.out.println("Usuário não pode ser nulo");
+            return false;
         }
-
-    } catch (FileNotFoundException erro) {
-        System.out.println(erro);
-    } catch (IOException e) {
-        e.printStackTrace();
+        
+        if (usuarioVO.getIdusuario() <= 0) {
+            System.out.println("ID do usuário inválido");
+            return false;
+        }
+        
+        // Verificar se o usuário existe e não está expirado
+        UsuarioVO usuarioExistente = consultarUsuarioBO(usuarioVO.getIdusuario());
+        if (usuarioExistente == null || usuarioExistente.getIdusuario() == 0) {
+            System.out.println("Usuário não encontrado ou já expirado");
+            return false;
+        }
+        
+        // Realizar atualização
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        return usuarioDAO.atualizarUsuarioDAO(usuarioVO);
+        
+    } catch (Exception e) {
+        System.out.println("Erro ao atualizar usuário: " + e.getMessage());
+        return false;
     }
-
-    return resultado;
 }
 
+
+
+public boolean deletarUsuarioBO(int idUsuario) {
+    UsuarioDAO usuarioDAO = new UsuarioDAO();
+    try {
+        // Verifica se o usuário existe antes de tentar deletar
+        UsuarioVO usuarioExistente = consultarUsuarioBO(idUsuario);
+        if (usuarioExistente == null || usuarioExistente.getIdusuario() == 0) {
+            System.out.println("Usuário não encontrado ou já expirado");
+            return false;
+        }
+        // Chama o DAO para remover o usuário
+        return usuarioDAO.excluirUsuarioDAO(idUsuario);
+    } catch (Exception e) {
+        System.out.println("Erro ao deletar usuário: " + e.getMessage());
+        return false;
+    }
+}
 
 }
