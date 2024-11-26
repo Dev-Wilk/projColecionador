@@ -63,17 +63,13 @@ public class UsuarioController {
 
 
    
-  @DELETE
-   @Path("/deletar/{idusuario}")
-   public Response deletarUsuario(@PathParam("idusuario") int idUsuario) {
-       UsuarioBO usuarioBO = new UsuarioBO();
-       boolean deletado = usuarioBO.deletarUsuarioBO(idUsuario);
-       
-       if (deletado) {
-           return Response.ok("Usuário deletado com sucesso.").build();
-       } else {
-           return Response.status(Response.Status.NOT_FOUND).entity("Usuário não encontrado ou já expirado.").build();
-       }
-   }
+   @DELETE
+   	@Path("/excluir")
+   	@Consumes(MediaType.APPLICATION_JSON)
+   	@Produces(MediaType.APPLICATION_JSON)
+   	public Boolean excluirUsuarioController(UsuarioVO usuarioVO) {
+   		UsuarioBO usuarioBO = new UsuarioBO();
+   		return usuarioBO.excluirUsuarioBO(usuarioVO);
+   	}
 
 }

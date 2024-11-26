@@ -11,39 +11,37 @@ import java.util.ArrayList;
 import model.vo.UsuarioVO;
 
 public class UsuarioDAO {
+	
 	public boolean verificarCadastroUsuarioBancoDAO(UsuarioVO usuarioVO) {
         Connection conn = Banco.getConnection();
-        PreparedStatement pstmt = null;
+        Statement stmt = Banco.getStatement(conn);
         ResultSet resultado = null;
         boolean retorno = false;
-    
-        String query = "SELECT idusuario FROM usuario WHERE email = ?";
-    
+        
+        String query = "SELECT idUsuario FROM usuario WHERE email = '" + usuarioVO.getEmail() + "' ";
+       
         try {
-            pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, usuarioVO.getEmail());
-            resultado = pstmt.executeQuery();
-    
+        	
+            resultado = stmt.executeQuery(query);
             if (resultado.next()) {
                 retorno = true;
             }
         } catch (SQLException erro) {
-            System.out.println("Erro ao executar a query do método verificarCadastroUsuarioBanco!");
+            System.out.println("Erro ao executar a query do método verificarCadastroUsuarioBancoDAO.");
             System.out.println("Erro: " + erro.getMessage());
         } finally {
             Banco.closeResultSet(resultado);
-            Banco.closeStatement(pstmt);
+            Banco.closeStatement(stmt);
             Banco.closeConnection(conn);
         }
-    
         return retorno;
     }
 
 
     public UsuarioVO cadastrarUsuarioDAO(UsuarioVO usuarioVO) {
-    String query = "INSERT INTO usuario (nome, email, login, senha, datacadastro) VALUES (?, ?, ?, ?, ?)";
-    Connection conn = Banco.getConnection();
-    PreparedStatement pstmt =  Banco.getPreparedStatement(conn, query);
+    	String query = "INSERT INTO usuario (nome, email, login, senha, datacadastro) VALUES (?, ?, ?, ?, ?)";
+    	Connection conn = Banco.getConnection();
+    	PreparedStatement pstmt =  Banco.getPreparedStatement(conn, query);
     
 
     try {
@@ -56,7 +54,7 @@ public class UsuarioDAO {
 
         ResultSet resultado = pstmt.getGeneratedKeys();
         if (resultado.next()) {
-            usuarioVO.setIdusuario(resultado.getInt(1));
+            usuarioVO.setIdUsuario(resultado.getInt(1));
         }
     } catch (SQLException erro) {
         System.out.println("Erro ao executar a query do método cadastrarUsuarioDAO!");
@@ -83,7 +81,7 @@ public ArrayList<UsuarioVO> consultarTodosUsuariosDAO() {
 
         while (resultado.next()) {
             UsuarioVO usuario = new UsuarioVO();
-            usuario.setIdusuario(Integer.parseInt(resultado.getString(1)));
+            usuario.setIdUsuario(Integer.parseInt(resultado.getString(1)));
             usuario.setNome(resultado.getString(2));
             usuario.setEmail(resultado.getString(3));
             usuario.setLogin(resultado.getString(4));
@@ -146,7 +144,7 @@ public boolean verificarCadastroUsuarioPorIDDAO(UsuarioVO usuarioVO) {
 
     try {
         pstmt = (PreparedStatement) conn.prepareStatement(query);
-        pstmt.setInt(1, usuarioVO.getIdusuario());
+        pstmt.setInt(1, usuarioVO.getIdUsuario());
         resultado = pstmt.executeQuery();
 
         if (resultado.next()) {
@@ -180,7 +178,7 @@ public boolean atualizarUsuarioDAO(UsuarioVO usuarioVO) {
         pstmt.setString(2, usuarioVO.getEmail());
         pstmt.setString(3, usuarioVO.getLogin());
         pstmt.setString(4, usuarioVO.getSenha());
-        pstmt.setInt(5, usuarioVO.getIdusuario());
+        pstmt.setInt(5, usuarioVO.getIdUsuario());
 
         pstmt.executeUpdate();
         retorno = true;
@@ -196,12 +194,12 @@ public boolean atualizarUsuarioDAO(UsuarioVO usuarioVO) {
 }
 
 
-public boolean excluirUsuarioDAO(int idUsuario) {
+public boolean excluirUsuarioDAO(UsuarioVO usuarioVO) {
     Connection conn = Banco.getConnection();
     Statement stmt = Banco.getStatement(conn);
     boolean retorno = false;
 
-    String query = "DELETE FROM usuario WHERE idusuario = " + idUsuario;
+    String query = "DELETE FROM usuario WHERE idusuario = " + usuarioVO.getIdUsuario();
 
     try {
         if (stmt.executeUpdate(query) == 1) {
@@ -218,6 +216,28 @@ public boolean excluirUsuarioDAO(int idUsuario) {
     return retorno;
 }
 
+
+public UsuarioVO logarUsuarioDAO(UsuarioVO usuarioVO) {
+    String query = "SELECT idUsuario FROM usuario WHERE login = ? AND senha = ? AND dataExpiracao is null";
+
+    try (Connection conn = Banco.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+        pstmt.setString(1, usuarioVO.getLogin());
+        pstmt.setNString(2, usuarioVO.getSenha());
+
+        try (ResultSet resultado = pstmt.executeQuery()) {
+            if (resultado.next()) {
+                usuarioVO.setIdUsuario(resultado.getInt(1));
+            }
+        }
+
+    } catch (SQLException erro) {
+        System.err.println("Erro ao logar usuário: " + erro.getMessage()); 
+    }
+
+    return usuarioVO; 
+}
 
 
 }

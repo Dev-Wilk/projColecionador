@@ -65,14 +65,13 @@ public void setLogin(String login) {
     this.login = login;
 }
 
-    public int getIdusuario() {
-        return idusuario;
-    }
+public int getIdUsuario() {
+	return idusuario;
+}
 
-    public void setIdusuario(int idusuario) {
-        this.idusuario = idusuario;
-    }
-
+public void setIdUsuario(int idUsuario) {
+	this.idusuario = idUsuario;
+}
 
 
 }

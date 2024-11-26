@@ -1,0 +1,11 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #d3d3d3; /* Fundo geral da página */
+}
+
+main {
+    height: calc(100vh - 70px); /* Ajusta a altura do conteúdo principal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

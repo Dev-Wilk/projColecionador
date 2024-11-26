@@ -1,6 +1,7 @@
 package model.bo;
 
 import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -96,14 +97,14 @@ public UsuarioVO consultarUsuarioBO(int idUsuario) {
     Statement stmt = Banco.getStatement(conn);
     ResultSet resultado = null;
 
-    String query = "SELECT idusuario, nome, email, login, senha, datacadastro, datacadastro FROM usuario WHERE idusuario =" + idUsuario + "AND dataexpiracao = null";
+    String query = "SELECT idusuario, nome, email, login, senha, datacadastro, datacadastro FROM usuario WHERE idusuario =" + idUsuario;
 
     UsuarioVO usuario = new UsuarioVO();
     try {
         resultado = stmt.executeQuery(query);
 
         while (resultado.next()) {
-            usuario.setIdusuario(Integer.parseInt(resultado.getString(1)));
+            usuario.setIdUsuario(Integer.parseInt(resultado.getString(1)));
             usuario.setNome(resultado.getString(2));
             usuario.setEmail(resultado.getString(3));
             usuario.setLogin(resultado.getString(4));
@@ -131,14 +132,14 @@ public boolean atualizarUsuarioBO(UsuarioVO usuarioVO) {
             return false;
         }
         
-        if (usuarioVO.getIdusuario() <= 0) {
+        if (usuarioVO.getIdUsuario() <= 0) {
             System.out.println("ID do usuário inválido");
             return false;
         }
         
         // Verificar se o usuário existe e não está expirado
-        UsuarioVO usuarioExistente = consultarUsuarioBO(usuarioVO.getIdusuario());
-        if (usuarioExistente == null || usuarioExistente.getIdusuario() == 0) {
+        UsuarioVO usuarioExistente = consultarUsuarioBO(usuarioVO.getIdUsuario());
+        if (usuarioExistente == null || usuarioExistente.getIdUsuario() == 0) {
             System.out.println("Usuário não encontrado ou já expirado");
             return false;
         }
@@ -155,21 +156,35 @@ public boolean atualizarUsuarioBO(UsuarioVO usuarioVO) {
 
 
 
-public boolean deletarUsuarioBO(int idUsuario) {
-    UsuarioDAO usuarioDAO = new UsuarioDAO();
-    try {
-        // Verifica se o usuário existe antes de tentar deletar
-        UsuarioVO usuarioExistente = consultarUsuarioBO(idUsuario);
-        if (usuarioExistente == null || usuarioExistente.getIdusuario() == 0) {
-            System.out.println("Usuário não encontrado ou já expirado");
-            return false;
-        }
-        // Chama o DAO para remover o usuário
-        return usuarioDAO.excluirUsuarioDAO(idUsuario);
-    } catch (Exception e) {
-        System.out.println("Erro ao deletar usuário: " + e.getMessage());
-        return false;
-    }
-}
+	public boolean excluirUsuarioBO(UsuarioVO usuarioVO) {
+		boolean resultado = false;
+		UsuarioDAO usuarioDAO = new UsuarioDAO();
+		if (usuarioDAO.verificarCadastroUsuarioPorIDDAO(usuarioVO)) {
+			resultado = usuarioDAO.excluirUsuarioDAO(usuarioVO);
+		} else {
+			System.out.println("\nUsuário não existe.");
+		}
+		return resultado;
+	}
 
+
+
+	public UsuarioVO logarUsuarioBO(InputStream usuarioInputStream) {
+		UsuarioDAO usuarioDAO = new UsuarioDAO();
+		UsuarioVO usuarioVO = null;
+		try {
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.findAndRegisterModules();
+			usuarioVO = objectMapper.readValue(usuarioInputStream, UsuarioVO.class);
+
+			usuarioVO = usuarioDAO.logarUsuarioDAO(usuarioVO);
+
+		} catch (FileNotFoundException erro) {
+		System.out.println(erro);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return usuarioVO;
+}
 }
