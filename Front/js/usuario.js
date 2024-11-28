@@ -54,21 +54,31 @@ async function cadastrarUsuario() {
     }
 
     // Obtém o usuário cadastrado da resposta
-    const usuarioCadastrado = await response.json();
-
-    // Verifica se o ID do usuário é válido
-    if (usuarioCadastrado.idusuario !== 0) {
-      alert('Cadastro realizado com sucesso!');
-      form.reset();
-      window.location.href = 'login.html';
-    } else {
-      alert('Erro ao cadastrar. Por favor, tente novamente.');
+    function cadastrarUsuario(usuario) {
+      fetch('/rest/usuario/cadastrar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(usuario)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Cadastro   
+     falhou');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Mostrar mensagem de sucesso
+        // Redirecionar para a página de login
+        console.log('Usuário cadastrado com sucesso:', data);
+      })
+      .catch(error => {
+        // Mostrar mensagem de erro
+        console.error(error);
+      });
     }
-  } catch (error) {
-    console.error('Erro ao cadastrar:', error);
-    alert('Erro ao cadastrar. Por favor, tente novamente mais tarde.');
-  }
-} 
 
 
 
@@ -204,7 +214,7 @@ async function cadastrarUsuario() {
       console.error('Erro ao fazer login:', error);
       alert('Erro ao fazer login. Por favor, tente novamente mais tarde.');
     }
-  }
+  
 
 
 
