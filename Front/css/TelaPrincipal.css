@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap'); 
+:root { 
+    --cor-fundo: #C6C6C6; 
+    --cor-modal: rgba(0,0,0,0.5); 
+    --cor-sombra-modal: rgba(0,0,0,0.6); 
+    --cor-fonte: #03e9f4; 
+    --cor-branco: #FFFFFF; 
+    --cor-preto: #000000; 
+    --cor-linha-principal: #FFFAFA; 
+    --cor-linha-secundaria: #F5F5F5; 
+    --fonte: "SUSE", system-ui; 
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--fonte);
+}
+#imagem-logo {
+    width: 100px;
+    height: auto;
+}
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: var(--cor-sombra-modal);
+    height: 100px;
+}
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+nav ul li {
+    margin: 0 45px;
+}
+nav ul li a {
+    display: block;
+    text-decoration: none;
+    color: var(--cor-preto);
+    padding: 10px 20px;
+    border-radius: 10px;
+    outline: none;
+}
+nav ul li a:hover,
+nav ul li a:focus {
+    background-color: var(--cor-fonte);
+    color: var(--cor-preto);
+    transition: all 0.4s ease;
+}
+body {
+    background-color: var(--cor-fundo);
+}

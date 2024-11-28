@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Colecionador - Coleção</title>
+    <link rel="stylesheet" href="../css/TelaColecao.css">
+    
+</head>
+<body>
+    <header>
+        <a href="TelaPrincipal.html"> <img src="../img/tiopatinhas.png" alt="" id="imagem-logo"> </a>
+        <nav>
+            <ul>
+                <li><a href="TelaUsuário.html">Usuário</a></li>
+                <li><a href="TelaColecao.html">Coleção</a></li>
+                <li><a href="TelaDashboard.html">Dashboard</a></li>
+                <li><a href="TelaLogin.html">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+<main>
+    <div class="exibir">
+        <a id="exibir">Mostrar</a>
+    </div>
+    <div class="principal">
+    <div class="formulario">
+        <h2>Colecionável</h2>
+        <form id="formulario" data-action="cadastrar">
+            <!--input hidden do id-->
+            <input type="hidden" id="idMoeda" name="idMoeda" />
+            <!-- Campo para o Nome -->
+            <div class="form-group">
+                <label for="nome"></label>
+                <input type="text" id="nome" name="nome" placeholder="Nome:" required>
+            </div>
+        
+            <!-- Campo para o País -->
+            <div class="form-group">
+                <label for="pais"></label>
+                <input type="text" id="pais" name="pais" placeholder="País:" required>
+            </div>
+        
+            <!-- Campo para o Ano -->
+            <div class="form-group">
+                <label for="ano"></label>
+                <input type="number" id="ano" name="ano" placeholder="Ano:" required>
+            </div>
+        
+            <!-- Campo para o Valor -->
+            <div class="form-group">
+                <label for="valor"></label>
+                <input type="number" id="valor" name="valor" step="0.01" placeholder="Valor R$:" required>
+            </div>
+        
+            <!-- Campo para Detalhes -->
+            <div class="form-group">
+                <label for="detalhes"></label>
+                <textarea id="detalhes" name="detalhes" placeholder="Detalhes:" required></textarea>
+            </div>
+        
+            <!-- Campo para Upload de Arquivo -->
+            <div class="form-group">
+                <input type="file" id="arquivo" name="arquivo" accept="image/*" hidden>
+                <label for="arquivo" class="file-label">Selecionar Arquivo</label>
+                <span id="nome-arquivo">Nenhum arquivo selecionado</span>
+            </div>
+        
+            <!-- Botões de Ação -->
+            <div>
+                <input class="botao" type="submit" value="Gravar">
+                <input class="botao" type="button" value="Limpar" id="limpar">
+            </div>
+        </form>
+    </div>  
+    </div>
+    <div class="table-container">
+    <table class="table-border">
+        <caption class="titulo-colecao">COLEÇÃO</caption>
+        <tr>
+            <th>IMAGEM</th>
+            <th>ID</th>
+            <th>NOME</th>
+            <th>PAÍS</th>
+            <th>ANO</th>
+            <th>VALOR</th>
+            <th>DETALHES</th>
+            <th>AÇÕES</th>
+        </tr>
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+    </div>
+</main>
+<script src="../Js/TelaColecao.js"></script>
+</body>
+</html>

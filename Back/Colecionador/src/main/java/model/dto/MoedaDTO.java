@@ -4,51 +4,48 @@ import java.time.LocalDate;
 
 public class MoedaDTO {
 	
-	private int idMoeda;
-	private int idUsuario;
-	private String nome;
+	private int idmoeda;
+	private int idusuario;
+	private String nomeMoeda;
 	private String pais;
 	private int ano;
 	private double valor;
 	private String detalhes;
-	private LocalDate dataCadastro;
+	private LocalDate dataCadastroMoeda;
 	private byte[] imagem;
 	
-	public MoedaDTO(int idMoeda, int idUsuario, String nome, String pais, int ano, double valor, String detalhes,
-			LocalDate dataCadastro, byte[] imagem) {
-		super();
-		this.idMoeda = idMoeda;
-		this.idUsuario = idUsuario;
-		this.nome = nome;
+	public MoedaDTO(int idmoeda,int idusuario,  String nomeMoeda, String pais, int ano,double valor, String detalhes, LocalDate dataCadastroMoeda,byte[] imagem ) {
+		super(); 
+		this.idmoeda = idmoeda;
+		this.idusuario = idusuario;
+		this.nomeMoeda = nomeMoeda;
 		this.pais = pais;
 		this.ano = ano;
 		this.valor = valor;
 		this.detalhes = detalhes;
-		this.dataCadastro = dataCadastro;
+		this.dataCadastroMoeda = dataCadastroMoeda;
 		this.imagem = imagem;
 	}
-	
 	public MoedaDTO() {
 		super();
 	}
-	
 	public int getIdMoeda() {
-		return idMoeda;
+		return idmoeda;
 	}
-	public void setIdMoeda(int idMoeda) {
-		this.idMoeda = idMoeda;
+	public void setIdMoeda(int idmoeda) {
+		this.idmoeda = idmoeda;
 	}
 	public int getIdUsuario() {
-		return idUsuario;
+		return idusuario;
 	}
-	public void setIdUsuario(int idUsuario) {
-		this.idUsuario = idUsuario;
+	public void setIdUsuario(int idusuario) {
+		this.idusuario = idusuario;
 	}
-	public String getNome() {
-		return nome;
+	public String getNomeMoeda() {
+		return nomeMoeda;
 	}
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNomeMoeda(String nomeMoeda) {
+		this.nomeMoeda = nomeMoeda;
 	}
 	public String getPais() {
 		return pais;
@@ -74,17 +71,16 @@ public class MoedaDTO {
 	public void setDetalhes(String detalhes) {
 		this.detalhes = detalhes;
 	}
-	public LocalDate getDataCadastro() {
-		return dataCadastro;
+	public LocalDate getDataCadastroMoeda () {
+		return  dataCadastroMoeda;
 	}
-	public void setDataCadastro(LocalDate dataCadastro) {
-		this.dataCadastro = dataCadastro;
+	public void  setDataCadastroMoeda(LocalDate dataCadastroMoeda) {
+		this.dataCadastroMoeda = dataCadastroMoeda;
 	}
 	public byte[] getImagem() {
-		return imagem;
+		return imagem;	
 	}
 	public void setImagem(byte[] imagem) {
 		this.imagem = imagem;
 	}
-
 }
