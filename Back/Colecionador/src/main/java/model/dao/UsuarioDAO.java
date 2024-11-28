@@ -135,18 +135,15 @@ public UsuarioVO consultarUsuarioDAO(int idUsuario) {
 
 
 public boolean verificarCadastroUsuarioPorIDDAO(UsuarioVO usuarioVO) {
-    Connection conn =  Banco.getConnection();
-    PreparedStatement pstmt = null;
-    ResultSet resultado = null;
-    boolean retorno = false;
+	  Connection conn = Banco.getConnection();
+      Statement stmt = Banco.getStatement(conn);
+      ResultSet resultado = null;
+      boolean retorno = false;
 
-    String query = "SELECT idusuario FROM usuario WHERE idusuario = ?";
+    String query = "SELECT idusuario FROM usuario WHERE idusuario = " + usuarioVO.getIdUsuario();
 
     try {
-        pstmt = (PreparedStatement) conn.prepareStatement(query);
-        pstmt.setInt(1, usuarioVO.getIdUsuario());
-        resultado = pstmt.executeQuery();
-
+        resultado = stmt.executeQuery(query);
         if (resultado.next()) {
             retorno = true;
         }
@@ -155,10 +152,9 @@ public boolean verificarCadastroUsuarioPorIDDAO(UsuarioVO usuarioVO) {
         System.out.println("Erro: " + erro.getMessage());
     } finally {
         Banco.closeResultSet(resultado);
-        Banco.closeStatement(pstmt);
+        Banco.closeStatement(stmt);
         Banco.closeConnection(conn);
     }
-
     return retorno;
 }
 
@@ -195,24 +191,26 @@ public boolean atualizarUsuarioDAO(UsuarioVO usuarioVO) {
 
 
 public boolean excluirUsuarioDAO(UsuarioVO usuarioVO) {
-    Connection conn = Banco.getConnection();
-    Statement stmt = Banco.getStatement(conn);
+	Connection conn = Banco.getConnection();
+    PreparedStatement pstmt = null;
     boolean retorno = false;
 
-    String query = "DELETE FROM usuario WHERE idusuario = " + usuarioVO.getIdUsuario();
-
+    String query = "UPDATE  usuario set dataExpiracao = ?  WHERE idusuario = ?";
+    pstmt = Banco.getPreparedStatement(conn, query);
     try {
-        if (stmt.executeUpdate(query) == 1) {
+    	pstmt.setObject(1, LocalDate.now());
+    	pstmt.setInt(2, usuarioVO.getIdUsuario());
+    	
+        if (pstmt.executeUpdate() == 1) {
             retorno = true;
         }
     } catch (SQLException erro) {
         System.out.println("Erro ao executar a query do método excluirUsuarioDAO!");
         System.out.println("Erro: " + erro.getMessage());
     } finally {
-        Banco.closeStatement(stmt);
+        Banco.closeStatement(pstmt);
         Banco.closeConnection(conn);
     }
-
     return retorno;
 }
 

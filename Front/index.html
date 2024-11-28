@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Principal</title>
-    <link rel="stylesheet" href="css/cabecalho.css">
-    <link rel="stylesheet" href="css/styles.css">
-     
+    <title>Gerenciamento de Coleções</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/style.js" defer></script>
+    <script src="../js/logout.js"></script>
 </head>
 <body>
+    <header>
+        <a href="../index.html"><img class="imagem" src="../img/tiopatinhas.png" alt="Logo"></a>
+        <nav>
+            <a href="../modules/editarUsuario.html" class="link">Usuário</a>
+            <a href="../modules/colecao.html" class="link">Coleção</a>
+            <a href="../modules/dashboard.html" class="link">Dashboard</a>
+            <a href="#" onclick="logout()" class="link">Sair</a>
+        </nav>
+    </header> 
 
-    <div id="cabecalho"></div> 
+  
 
-    <script>
-        fetch('cabecalho.html') 
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('cabecalho').innerHTML = html;
-            });
-    </script>
+    
 
-    <main>
-        </main>
+   
 </body>
 </html>
