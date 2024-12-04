@@ -5,41 +5,44 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../css/TelaDashboard.css">
+    <link rel="stylesheet" href="../css/cabecalho.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <script src="../js/dashboard.js" defer></script>
-    
 </head>
 <body>
     <header>
-        <a href="TelaPrincipal.html"> <img src="../img/tiopatinhas.png" alt="" id="imagem-logo"> </a>
+        <a href="/index.html"> <img src="../img/tiopatinhas.png" alt="" id="imagem-logo"> </a>
         <nav>
-            <ul>
-                <li><a href="TelaUsuário.html">Usuário</a></li>
-                <li><a href="TelaColecao.html">Coleção</a></li>
-                <li><a href="TelaDashboard.html">Dashboard</a></li>
-                <li><a href="TelaLogin.html">Sair</a></li>
-            </ul>
+            <a href="login.html" class="link">Usuário</a>
+            <a href="#" class="link">Coleção</a>
+            <a href="#" class="link">Dashboard</a>
+            <a href="#" class="link">Sair</a>
         </nav>
-    </header>
+    </header> 
     <main>
         <div class="container">
             <h2 class="tituloh2"> Dashboard</h1>
             <div class="container-dashboard">
                 <div class="container-total">
                     <h3 class="tituloh3">Total de Moedas</h3>
-                    <p class="paragrafo-dashboard">  </p>
+                    <p class="paragrafo-dashboard"> 3 </p>
                 </div>
                 <div class="container-valor">
                     <h3 class="tituloh3">Valor Total da Coleção</h3>
-                    <p id="valor_total" class="paragrafo-dashboard"></p>
+                    <p class="paragrafo-dashboard">R$ 827.00</p>
                 </div>
             </div>
             <h2 class="tituloh2-moedas">Moedas Recentemente Adicionadas</h2>
             <div class="container-moeda">
-                
+                <img class="imagem"  src="../img/tiopatinhas.png" alt="imagem">
+                <h3 class="tituloh3">Libra</h3>
+                <p class="paragrafo-moeda">País:  </p>
+                <p class="paragrafo-moeda">Ano: </p>
+                <p class="paragrafo-moeda">Valor: </p>
             </div>
         </div>
     </main>
-    <script src="../js/TelaDashboard.js"></script>
+    
 </body>
 </html>
+

@@ -1,84 +1,87 @@
 package model.vo;
+
 import java.time.LocalDate;
+
 public class UsuarioVO {
 
-	private int idusuario;
+	private int idUsuario;
 	private String nome;
 	private String email;
-	private String login;
 	private String senha;
-	private LocalDate datacadastro;
-	private LocalDate dataexpiracao;
-	
-	
-	public UsuarioVO(int idusuario, String nome, String email, String login, String senha, LocalDate datacadastro, LocalDate dataexpiracao) {
+	private LocalDate dataCadastro;
+	private String login;
+	private LocalDate dataExpiracao;
+
+	public UsuarioVO(int idUsuario, String nome, String email, String senha, LocalDate dataCadastro, String login,
+			LocalDate dataExpiracao) {
 		super();
-		this.idusuario = idusuario;
+		this.idUsuario = idUsuario;
 		this.nome = nome;
 		this.email = email;
-		this.login = login;
 		this.senha = senha;
-		this.datacadastro = datacadastro;
-		this.dataexpiracao = dataexpiracao;
+		this.dataCadastro = dataCadastro;
+		this.login = login;
+		this.dataExpiracao = dataExpiracao;
 	}
-	
+
 	public UsuarioVO() {
 		super();
 	}
-	
+
 	public int getIdUsuario() {
-		return idusuario;
+		return idUsuario;
 	}
-	
-	public void setIdUsuario(int idusuario) {
-		this.idusuario = idusuario;
+
+	public void setIdUsuario(int idUsuario) {
+		this.idUsuario = idUsuario;
 	}
-	
+
 	public String getNome() {
 		return nome;
 	}
-	
+
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
+
 	public String getEmail() {
 		return email;
 	}
-	
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
-	public String getLogin() {
-		return login;
-	}
-	
-	public void setLogin(String login) {
-		this.login = login;
-	}
-	
+
 	public String getSenha() {
 		return senha;
 	}
-	
+
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-	
+
 	public LocalDate getDataCadastro() {
-		return datacadastro;
+		return dataCadastro;
 	}
-	
-	public void setDataCadastro(LocalDate datacadastro) {
-		this.datacadastro = datacadastro;
+
+	public void setDataCadastro(LocalDate dataCadastro) {
+		this.dataCadastro = dataCadastro;
 	}
-	
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
 	public LocalDate getDataExpiracao() {
-		return dataexpiracao;
+		return dataExpiracao;
 	}
-	
-	public void setDataExpiracao(LocalDate dataexpiracao) {
-		this.dataexpiracao = dataexpiracao;
+
+	public void setDataExpiracao(LocalDate dataExpiracao) {
+		this.dataExpiracao = dataExpiracao;
 	}
+
 }

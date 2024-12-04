@@ -1,4 +1,4 @@
-// Seleção de elementos do DOM
+// Seleciona os elementos do DOM necessários para manipular o formulário, botões, tabela, e informações do usuário
 const form = document.querySelector('#formulario');
 const limpar = document.querySelector('#limpar');
 const exibir = document.querySelector('#exibir');
@@ -10,46 +10,48 @@ const usuarioLogadoStr = sessionStorage.getItem("usuarioLogado");
 const usuarioLogado = JSON.parse(usuarioLogadoStr);
 const userId = usuarioLogado?.idUsuario || null;
 
-// Verifica se o usuário está logado
+// Verifica se o usuário está logado; caso contrário, redireciona para a página de login
 if (!userId) {
-    alert("Usuário não está logado. Redirecionando para a tela de login.");
-    window.location.href = "TelaLogin.html";
+    alert("Sessão expirada. Você será redirecionado para a página de login.");
+    window.location.href = "login.html";
 }
 
-// Atualiza o nome do arquivo selecionado
+// Atualiza o nome do arquivo selecionado no input de arquivos
 inputFile.addEventListener('change', () => {
     fileName.textContent = inputFile.files.length > 0 ? inputFile.files[0].name : 'Nenhum arquivo selecionado';
 });
 
-// Alterna a exibição do formulário
+// Alterna a exibição do formulário de cadastro/edição
 exibir.addEventListener("click", () => {
     const isDisplayed = principal.style.display === 'flex';
     principal.style.display = isDisplayed ? 'none' : 'flex';
     exibir.textContent = isDisplayed ? 'Mostrar' : 'Ocultar';
 });
 
-// Limpa o formulário
+// Limpa o formulário e reinicia o estado do input de arquivo
 limpar.addEventListener('click', () => {
     form.reset();
     inputFile.value = '';
     fileName.textContent = 'Nenhum arquivo selecionado';
 });
 
-// Função para buscar moedas do backend e preencher a tabela
+// Função para buscar as moedas do servidor para o usuário logado
 async function buscarMoedas() {
     try {
         console.log(`Buscando moedas para o usuário: ${userId}`);
-        const response = await fetch(`http://localhost:9090/Colecionador/rest/moeda/listar/${userId}`);
+        const response = await fetch(`http://localhost:8080/colecionador/rest/moeda/listar/${userId}`);
 
         if (response.ok) {
             const moedas = await response.json();
             console.log("Moedas recebidas do backend:", moedas);
 
+            // Caso não existam moedas, exibe uma mensagem na tabela
             if (moedas.length === 0) {
                 tabelaCorpo.innerHTML = '<tr><td colspan="8">Nenhuma moeda encontrada.</td></tr>';
                 return;
             }
 
+            // Preenche a tabela com as moedas retornadas
             preencherTabela(moedas);
         } else {
             const errorMessage = await response.text();
@@ -62,14 +64,14 @@ async function buscarMoedas() {
     }
 }
 
-// Função para preencher a tabela com os dados das moedas
+// Preenche a tabela com as moedas recebidas do servidor
 function preencherTabela(moedas) {
-    tabelaCorpo.innerHTML = ''; // Limpa o conteúdo atual da tabela
+    tabelaCorpo.innerHTML = ''; // Limpa a tabela antes de preenchê-la
 
     moedas.forEach(moeda => {
         const linha = document.createElement('tr');
 
-        // Coluna da imagem
+        // Adiciona a coluna com a imagem da moeda, caso exista
         const imgCelula = document.createElement('td');
         if (moeda.imagem) {
             const img = document.createElement('img');
@@ -83,17 +85,17 @@ function preencherTabela(moedas) {
 
         linha.appendChild(imgCelula);
 
-        // Colunas de dados
+        // Adiciona as colunas com os dados da moeda
         linha.innerHTML += `
             <td>${moeda.idMoeda}</td>
-            <td>${moeda.nomeMoeda}</td>
+            <td>${moeda.nome}</td>
             <td>${moeda.pais}</td>
             <td>${moeda.ano}</td>
             <td>R$ ${moeda.valor.toFixed(2)}</td>
             <td>${moeda.detalhes}</td>
         `;
 
-        // Coluna de ações
+        // Adiciona botões para editar e excluir a moeda
         const acoesCelula = document.createElement('td');
         const botaoEditar = document.createElement('button');
         botaoEditar.textContent = 'Editar';
@@ -113,16 +115,17 @@ function preencherTabela(moedas) {
     });
 }
 
-// Função para enviar o formulário (cadastrar ou atualizar moeda)
+// Submete os dados do formulário para cadastrar ou atualizar uma moeda
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const action = form.dataset.action || 'cadastrar';
+    const action = form.dataset.action || 'cadastrar'; // Determina a ação: cadastrar ou atualizar
     const file = inputFile.files[0];
 
+    // Cria um objeto com os dados da moeda
     const moedaVO = {
         idMoeda: form.dataset.moedaId || null,
-        nomeMoeda: document.getElementById('nome').value,
+        nome: document.getElementById('nome').value,
         pais: document.getElementById('pais').value,
         ano: parseInt(document.getElementById('ano').value),
         valor: parseFloat(document.getElementById('valor').value),
@@ -130,70 +133,63 @@ form.addEventListener('submit', async (event) => {
         idUsuario: userId,
     };
 
+    // Configura os dados para envio, incluindo o arquivo, se houver
     const formData = new FormData();
     formData.append('moedaVO', new Blob([JSON.stringify(moedaVO)], { type: 'application/json' }));
-    
-    // Apenas adiciona o arquivo ao FormData se ele foi selecionado
     if (file) {
         formData.append('file', file);
-    }else {
-        formData.append('file', null);
     }
 
     try {
         const endpoint = action === 'cadastrar' ? 'cadastrar' : 'atualizar';
-        const response = await fetch(`http://localhost:9090/Colecionador/rest/moeda/${endpoint}`, {
+        const response = await fetch(`http://localhost:8080/colecionador/rest/moeda/${endpoint}`, {
             method: action === 'cadastrar' ? 'POST' : 'PUT',
             body: formData,
         });
 
         if (response.ok) {
-            alert(`${action === 'cadastrar' ? 'Cadastro' : 'Atualização'} realizado com sucesso.`);
+            alert(`Moeda ${action === 'cadastrar' ? 'cadastrada' : 'atualizada'} com sucesso.`);
             form.reset();
             principal.style.display = 'none';
             exibir.textContent = 'Mostrar';
-            buscarMoedas();
+            buscarMoedas(); // Atualiza a lista de moedas
         } else {
             const errorMessage = await response.text();
-            console.error("Erro ao salvar moeda:", errorMessage);
-            alert("Erro ao salvar moeda: " + errorMessage);
+            alert("Erro ao salvar a moeda. Detalhes: " + errorMessage);
         }
     } catch (error) {
-        console.error("Erro ao salvar moeda:", error);
-        alert("Erro ao salvar moeda. Tente novamente.");
+        alert("Erro ao processar a solicitação. Tente novamente.");
     }
 });
 
-// Função para excluir uma moeda
+// Função para excluir uma moeda após confirmação do usuário
 async function excluirMoeda(moeda) {
-    if (confirm('Tem certeza de que deseja excluir esta moeda?')) {
+    if (confirm('Confirma a exclusão desta moeda? Esta ação não pode ser desfeita.')) {
         try {
-            const response = await fetch('http://localhost:9090/Colecionador/rest/moeda/excluir', {
+            const response = await fetch('http://localhost:8080/colecionador/rest/moeda/excluir', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idMoeda: moeda.idMoeda }),
             });
 
             if (response.ok) {
-                alert('Moeda excluída com sucesso.');
-                buscarMoedas();
+                alert('A moeda foi removida com sucesso.');
+                buscarMoedas(); // Atualiza a lista de moedas
             } else {
                 const errorMessage = await response.text();
-                console.error("Erro ao excluir moeda:", errorMessage);
-                alert("Erro ao excluir moeda: " + errorMessage);
+                alert("Falha ao excluir a moeda. Detalhes: " + errorMessage);
             }
         } catch (error) {
-            console.error("Erro ao excluir moeda:", error);
-            alert("Erro ao excluir moeda. Tente novamente.");
+            alert("Erro ao excluir a moeda. Verifique sua conexão e tente novamente.");
         }
     }
 }
 
-// Função para editar uma moeda
+// Preenche o formulário com os dados da moeda para edição
 function editarMoeda(moeda) {
     form.dataset.action = 'atualizar';
     form.dataset.moedaId = moeda.idMoeda;
-    document.getElementById('nome').value = moeda.nomeMoeda;
+    document.getElementById('nome').value = moeda.nome;
     document.getElementById('pais').value = moeda.pais;
     document.getElementById('ano').value = moeda.ano;
     document.getElementById('valor').value = moeda.valor;
@@ -202,5 +198,5 @@ function editarMoeda(moeda) {
     exibir.textContent = 'Ocultar';
 }
 
-// Inicializa a página carregando as moedas
+// Inicializa a lista de moedas ao carregar o script
 buscarMoedas();

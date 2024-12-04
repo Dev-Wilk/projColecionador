@@ -36,6 +36,7 @@ header {
     background-color: var(--cor-sombra-modal);
     height: 100px;
 }
+
 nav ul {
     display: flex;
     list-style: none;
@@ -70,6 +71,7 @@ nav ul li a:hover {
     text-align: center;
     margin-top: 20px;
     background-color: var(--cor-modal);
+    
 }
 
 .formulario h2 {
@@ -213,6 +215,7 @@ table {
     align-items: center;
     justify-content: center;
     background-color: var(--cor-fundo);
+    margin-top: 10rem;
 }
 
 .table-border {

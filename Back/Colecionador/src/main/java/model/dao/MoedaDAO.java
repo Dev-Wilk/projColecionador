@@ -1,130 +1,98 @@
 package model.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
+import model.dto.MoedaDTO;
 import model.vo.MoedaVO;
 
 public class MoedaDAO {
-	
-	
-	public MoedaVO cadastrarMoedaDAO(MoedaVO moedaVO) {
-	    String sql = "INSERT INTO moeda (nome, pais, ano, valor, detalhes, datacadastro, imagem, idusuario) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-	    Connection conn = Banco.getConnection();
-	    PreparedStatement pstmt = Banco.getPreparedStatementWithPk(conn, sql);
-	    ResultSet resultado = null;
-	    try {
-	        System.out.println("Preparando para inserir moeda no banco: " + moedaVO);
-	        
-	        pstmt.setString(1, moedaVO.getNomeMoeda());
-	        pstmt.setString(2, moedaVO.getPais());
-	        pstmt.setInt(3, moedaVO.getAno());
-	        pstmt.setDouble(4, moedaVO.getValor());
-	        pstmt.setString(5, moedaVO.getDetalhes());
-	        pstmt.setDate(6, Date.valueOf(java.time.LocalDate.now()));
-	        pstmt.setBytes(7, moedaVO.getImagem()); // Imagem pode ser nula
-	        pstmt.setInt(8, moedaVO.getIdUsuario());
 
-	        int linhasAfetadas = pstmt.executeUpdate();
-	        System.out.println("Linhas afetadas na inserção: " + linhasAfetadas);
+    public boolean verificarCadastroMoedaBancoDAO(MoedaVO moedaVO) {
+        Connection conn = Banco.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet resultado = null;
+        boolean retorno = false;
+        String query = "SELECT idmoeda FROM moeda WHERE nome = ? AND pais = ? AND ano = ? AND idUsuario = ?";
+        try {
+        	pstmt = Banco.getPreparedStatement(conn, query);
+        	pstmt.setString(1, moedaVO.getNome());
+        	pstmt.setString(2, moedaVO.getPais());
+        	pstmt.setInt(3, moedaVO.getAno());
+        	pstmt.setInt(4, moedaVO.getIdUsuario());
+        	
+        	resultado = pstmt.executeQuery();
+            if (resultado.next()) {
+                retorno = true;
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao executar a query do método verificarCadastroMoedaBancoDAO.");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeResultSet(resultado);
+            Banco.closeStatement(pstmt);
+            Banco.closeConnection(conn);
+        }
+        return retorno;
+    }
 
-	        resultado = pstmt.getGeneratedKeys();
-	        if (resultado.next()) {
-	            moedaVO.setIdMoeda(resultado.getInt(1));
-	            System.out.println("ID da moeda cadastrada: " + resultado.getInt(1));
-	        } else {
-	            System.out.println("Falha ao gerar ID da moeda.");
-	        }
-	    } catch (SQLException erro) {
-	        System.out.println("Erro ao executar a query no método cadastrarMoedaDAO:");
-	        System.out.println("Mensagem de erro: " + erro.getMessage());
-	    } finally {
-	        Banco.closeStatement(pstmt);
-	        Banco.closeConnection(conn);
-	        Banco.closeResultSet(resultado);
-	    }
-	    return moedaVO;
-	}
-	public boolean editCoinDAO(MoedaVO moedaVO) {
-		boolean retorno = false;
-	    Connection conn = Banco.getConnection();
-	    PreparedStatement stmt = null;
-	    String query = "";
-	    if(moedaVO.getImagem() != null && moedaVO.getImagem().length > 0) { 
-	    	query = "UPDATE moeda SET nome = ?, pais = ?, ano = ?, valor = ?, detalhes = ?, imagem = ? WHERE idmoeda = ?";
-	    	stmt = Banco.getPreparedStatement(conn, query);
-	    } else {
-	    	query = "UPDATE moeda SET nome = ?, pais = ?, ano = ?, valor = ?, detalhes = ? WHERE idmoeda = ?";
-	    	stmt = Banco.getPreparedStatement(conn, query);
-	    }
-	    try {
-		    	stmt.setString(1, moedaVO.getNomeMoeda());
-				stmt.setString(2, moedaVO.getPais());
-				stmt.setInt(3, moedaVO.getAno());
-				stmt.setDouble(4, moedaVO.getValor());
-				stmt.setString(5, moedaVO.getDetalhes());
-				if (moedaVO.getImagem() != null && moedaVO.getImagem().length > 0) {
-					stmt.setBytes(6, moedaVO.getImagem());
-					stmt.setInt(7, moedaVO.getIdMoeda());
-				} else {
-					stmt.setInt(6, moedaVO.getIdMoeda());
-				}
- 						if(stmt.executeUpdate() == 1) {
- 							retorno = true;
- 						}
-	    }  catch (SQLException erro) {
-			System.out.println("Erro ao executar a query do método, editarMoedaDAO");
-			System.out.println("Erro " + erro.getMessage());
-		} finally {
-			Banco.closeStatement(stmt);
-			Banco.closeConnection(conn);
-		}
-		return retorno;
-	}
-	public boolean excluirMoedaDAO(MoedaVO moedaVO) {
-	    String query = "DELETE FROM moeda WHERE idmoeda = ?";
-	    Connection conn = Banco.getConnection();
-	    PreparedStatement pstmt = Banco.getPreparedStatement(conn, query);
-	    boolean retorno = false;
-
-	    try {
-	        pstmt.setInt(1, moedaVO.getIdMoeda());
-	        if (pstmt.executeUpdate() == 1) {
-	            retorno = true;
-	        }
-	    } catch (SQLException erro) {
-	        System.out.println("Erro ao executar a query do método excluirMoedaDAO");
-	        System.out.println("Erro: " + erro.getMessage());
-	    } finally {
-	        Banco.closeStatement(pstmt);
-	        Banco.closeConnection(conn);
-	    }
-	    return retorno;
-	}
-	public ArrayList<MoedaVO> consultarMoedaDAO(int idusuario) {
+    public MoedaVO cadastrarMoedaDAO(MoedaVO moedaVO) {
+        String query = "INSERT INTO moeda (nome, pais, ano, valor, detalhes, datacadastro, idusuario, imagem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        Connection conn = Banco.getConnection();
+        PreparedStatement pstmt = Banco.getPreparedStatementWithPk(conn, query);
+        ResultSet resultado = null;
+        try {
+            pstmt.setString(1, moedaVO.getNome());
+            pstmt.setString(2, moedaVO.getPais());
+            pstmt.setInt(3, moedaVO.getAno());
+            pstmt.setDouble(4, moedaVO.getValor());
+            pstmt.setString(5, moedaVO.getDetalhes());
+            pstmt.setObject(6, LocalDate.now());
+            pstmt.setInt(7, moedaVO.getIdUsuario());
+            pstmt.setBytes(8, moedaVO.getImagem());
+ 
+            pstmt.execute();
+            
+            resultado = pstmt.getGeneratedKeys();
+            if (resultado.next()) {
+                moedaVO.setIdMoeda(resultado.getInt(1));
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao executar a query do método cadastrarMoedaDAO.");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeStatement(pstmt);
+            Banco.closeConnection(conn);
+            Banco.closeResultSet(resultado);
+        }
+        return moedaVO;
+    }
+    
+    public ArrayList<MoedaVO> consultarMoedaDAO(int idusuario) {
 		Connection conn = Banco.getConnection();
 		Statement stmt = Banco.getStatement(conn);
 		ResultSet resultado = null;
 		
 		String query = "SELECT idmoeda, nome, pais, ano, valor, detalhes, imagem FROM moeda WHERE idusuario = '" + idusuario + "' ";
-		ArrayList<MoedaVO> bostaMoeda  = new ArrayList<>(); 
+		ArrayList<MoedaVO> listaMoeda  = new ArrayList<>(); 
 		try {
 			resultado = stmt.executeQuery(query);
 			while (resultado.next()) {
 				MoedaVO moeda = new MoedaVO();
 				moeda.setIdMoeda(Integer.parseInt(resultado.getString(1)));
-				moeda.setNomeMoeda(resultado.getString(2));
+				moeda.setNome(resultado.getString(2));
 				moeda.setPais(resultado.getString(3));
 				moeda.setAno(resultado.getInt(4));
 				moeda.setValor(resultado.getDouble(5));
 				moeda.setDetalhes(resultado.getString(6));
 				moeda.setImagem(resultado.getBytes(7));
-				bostaMoeda.add(moeda);
+				listaMoeda.add(moeda);
 		
 			}
 		} catch (SQLException erro) {
@@ -135,31 +103,117 @@ public class MoedaDAO {
 			Banco.closeStatement(stmt);
 			Banco.closeConnection(conn);
 		}
-		return bostaMoeda;
+		return listaMoeda;
 	}
-	
-	public boolean verificarCadastroMoedaDAO(MoedaVO moedaVO) {
-		String query = "SELECT idmoeda FROM moeda WHERE idmoeda = '" + moedaVO.getIdMoeda() + "' ";
-		Connection conn = Banco.getConnection();
-		Statement stmt = Banco.getStatement(conn);
-		ResultSet resultado = null;
-		try {
-			resultado = stmt.executeQuery(query);
-		if (resultado.next()) {
-			return true;
-			} 
-		} catch (SQLException erro) {
-			System.out.println("Erro ao executar a query do método, verificarMoedaDAO");
-			System.out.println("Erro " + erro.getMessage());
-		} finally {
-			Banco.closeStatement(stmt);
-			Banco.closeConnection(conn);
-			Banco.closeResultSet(resultado);
-		}
-		return false;
+    
+   
+    
+    public boolean verificarCadastroMoedaPorIDDAO(MoedaVO moedaVO) {
+        Connection conn = Banco.getConnection();
+        Statement stmt = Banco.getStatement(conn);
+        ResultSet resultado = null;
+        boolean retorno = false;
+        String query = "SELECT idMoeda FROM moeda WHERE idMoeda = " + moedaVO.getIdMoeda();
+        try {
+            resultado = stmt.executeQuery(query);
+            if (resultado.next()) {
+                retorno = true;
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao executar a query do método verificarCadastroMoedaPorID!");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeResultSet(resultado);
+            Banco.closeStatement(stmt);
+            Banco.closeConnection(conn);
+        }
+        return retorno;
+    }
 
-	}
-	
-	
-	
+    public boolean atualizarMoedaDAO(MoedaVO moedaVO) {
+        boolean retorno = false;
+        Connection conn = Banco.getConnection();
+        PreparedStatement pstmt = null;
+
+        String query = "";
+        if (moedaVO.getImagem() != null && moedaVO.getImagem().length > 0) {
+            query = "UPDATE moeda SET nome = ?, pais = ?, ano = ?, valor = ?, detalhes = ?, imagem = ? WHERE idMoeda = ?";
+            pstmt = Banco.getPreparedStatement(conn, query);
+        } else {
+            query = "UPDATE moeda SET nome = ?, pais = ?, ano = ?, valor = ?, detalhes = ? WHERE idMoeda = ?";
+            pstmt = Banco.getPreparedStatement(conn, query);
+        }
+
+        try {
+            pstmt.setString(1, moedaVO.getNome());
+            pstmt.setString(2, moedaVO.getPais());
+            pstmt.setInt(3, moedaVO.getAno());
+            pstmt.setDouble(4, moedaVO.getValor());
+            pstmt.setString(5, moedaVO.getDetalhes());
+            if (moedaVO.getImagem() != null && moedaVO.getImagem().length > 0) {
+                pstmt.setBytes(6, moedaVO.getImagem());
+                pstmt.setInt(7, moedaVO.getIdMoeda());
+            } else {
+                pstmt.setInt(6, moedaVO.getIdMoeda());
+            }
+
+            if (pstmt.executeUpdate() == 1) {
+                retorno = true;
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao executar a query do método atualziarMoedaDAO!");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeStatement(pstmt);
+            Banco.closeConnection(conn);
+        }
+        return retorno;
+    }    
+
+    public boolean excluirMoedaDAO(MoedaVO moedaVO) {
+        Connection conn = Banco.getConnection();
+        Statement stmt = Banco.getStatement(conn);
+        boolean retorno = false;
+        String query = "DELETE FROM moeda WHERE idMoeda = " + moedaVO.getIdMoeda();
+        
+        try {
+            if (stmt.executeUpdate(query) == 1) {
+                retorno = true;
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao executar a query do método excluirMoedaDAO!");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeStatement(stmt);
+            Banco.closeConnection(conn);
+        }
+        
+        return retorno;
+    }
+    
+    
+    public byte[] consultarImagemMoedaDAO(int idMoeda) {
+        Connection conn = Banco.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet resultado = null;
+        byte[] retorno = null;
+        String query = "SELECT imagem FROM moeda WHERE idMoeda = ?";
+        
+        try {
+            pstmt = Banco.getPreparedStatement(conn, query);
+    		pstmt.setInt(1, idMoeda);
+    		resultado = pstmt.executeQuery();
+    		if( resultado.next()) {
+    			retorno = resultado.getBytes("imagem");
+    		}
+    	} catch (SQLException erro) {
+    		System.out.println("Erro ao executar a query do método consultarImagemPessoaDAO!");
+    		System.out.println("Erro: " +erro.getMessage());
+    	} finally {
+    		Banco.closeResultSet(resultado);
+    		Banco.closeStatement(pstmt);
+    		Banco.closeConnection(conn);
+    	}
+    	return retorno;
+    }
 }

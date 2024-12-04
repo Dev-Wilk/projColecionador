@@ -1,10 +1,11 @@
 package controller;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import jakarta.ws.rs.core.Response;
+
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -14,55 +15,59 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import model.bo.MoedaBO;
+import model.dto.MoedaDTO;
 import model.vo.MoedaVO;
 
 @Path("/moeda")
 public class MoedaController {
-        
-	@POST
-	@Path("/cadastrar")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.APPLICATION_JSON)
-	public MoedaVO cadastraMoedaController(@FormDataParam("file") InputStream fileInputStream, 
-    @FormDataParam("file") FormDataContentDisposition fileMetaData, 
-    @FormDataParam("moedaVO") InputStream moedaInputStream) throws Exception {
+
+    @POST
+    @Path("/cadastrar")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public MoedaVO cadastrarMoedaController(@FormDataParam("file") InputStream fileInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileMetaData,
+            @FormDataParam("moedaVO") InputStream moedaInputStream) throws Exception {	
         MoedaBO moedaBO = new MoedaBO();
-        return moedaBO.registerCoinBO(moedaInputStream, fileInputStream, fileMetaData);
+        return moedaBO.cadastrarMoedaBO(moedaInputStream, fileInputStream, fileMetaData);
+    }
+
+    @GET
+    @Path("/listar/{idUsuario}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response consultarTodasMoedasController(@PathParam("idUsuario") int idusuario) {
+        MoedaBO moedaBO = new MoedaBO();
+        return moedaBO.consultarTodasMoedasBO(idusuario);
     }
 
     @PUT
     @Path("/atualizar")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Boolean atualizarMoedaController(@FormDataParam("file") InputStream fileInputStream, 
-    @FormDataParam("file") FormDataContentDisposition fileMetaData, 
-    @FormDataParam("moedaVO") InputStream moedaInputStream) throws Exception {
+    public Boolean atualizarMoedaController(@FormDataParam("file") InputStream fileInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileMetaData,
+            @FormDataParam("moedaVO") InputStream moedaInputStream) throws Exception {
         MoedaBO moedaBO = new MoedaBO();
-        return moedaBO.editCoinBO(moedaInputStream, fileInputStream, fileMetaData);
-    }
-
-    @GET
-    @Path("/listar/{idUsuario}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.MULTIPART_FORM_DATA)
-    public Response listarMoedasController(@PathParam("idUsuario") int idUsuario) {
-        MoedaBO moedaBO = new MoedaBO();
-        return moedaBO.listCoinBO(idUsuario);
+        return moedaBO.atualizarMoedaBO(moedaInputStream, fileInputStream, fileMetaData);
     }
 
     @DELETE
     @Path("/excluir")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response excluirMoedaController(MoedaVO moedaVO) {
+    public Boolean excluirMoedaController(MoedaVO moedaVO) {
         MoedaBO moedaBO = new MoedaBO();
-        boolean excluido = moedaBO.deleteCoinBO(moedaVO);
+        return moedaBO.excluirMoedaBO(moedaVO);
+    }
 
-        if (excluido) {
-            return Response.ok().entity("Moeda excluída com sucesso.").build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Erro ao excluir moeda.").build();
-        }
+
+    @GET
+    @Path("/imagemMoeda/{idMoeda}")
+    @Produces("image/jpeg")
+    public Response consultarImagemMoedaController(@PathParam("idMoeda") int idMoeda) {
+        MoedaBO moedaBO = new MoedaBO();
+        return moedaBO.consultarImagemMoedaBO(idMoeda);
     }
 }
